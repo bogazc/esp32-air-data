@@ -2,14 +2,53 @@
 #include <Wire.h>
 #include <Adafruit_BMP280.h>
 #include "PMS.h"
+#include <WiFi.h>
+#include "secret.h"
+#include <ArduinoJson.h>
+#include <PubSubClient.h>
 
 Adafruit_BMP280 bmp;
 PMS pms(Serial2); 
 PMS::DATA data;
 
+WiFiClient espClient;
+PubSubClient client(espClient);
+
+void WiFi_connection() {
+  Serial.println("Proba polaczenia do WiFi z SSID ");
+  Serial.println(WIFI_SSID);
+
+  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+
+  while(WiFi.status() != WL_CONNECTED) {
+    delay(1000);
+    Serial.println(".");
+  }
+
+  Serial.println("Polaczono z siecia o adresie IP: ");
+  Serial.println(WiFi.localIP());
+}
+
+void reconnect() {
+  while (!client.connected()) {
+    Serial.print("Proba polaczenia MQTT...");
+    if (client.connect("ESP32_Station_01")) {
+      Serial.println("polaczono z brokerem!");
+    } else {
+      Serial.print("blad, stan=");
+      Serial.print(client.state());
+      delay(5000);
+    }
+  }
+}
+
 void setup() {
   Serial.begin(115200);
   
+  WiFi_connection();
+
+  client.setServer(MQTT_SERVER, 1883);
+
   Serial2.begin(9600, SERIAL_8N1, 16, 17);
 
   Wire.begin(21, 22);
@@ -22,25 +61,36 @@ void setup() {
 
   pms.activeMode();
   pms.wakeUp();
-  
-  Serial.println("Uruchamiam pomiary");
-  Serial.println("----------------------------------------------------------------------------------------------------------------");
 }
 
 void loop() {
-  // Dane z PMS
-  if (pms.read(data)) {
-    Serial.print("PM 1.0: "); Serial.print(data.PM_AE_UG_1_0); Serial.print(" ug/m3 | ");
-    Serial.print("PM 2.5: "); Serial.print(data.PM_AE_UG_2_5); Serial.print(" ug/m3 | ");
-    Serial.print("PM 10: ");  Serial.print(data.PM_AE_UG_10_0); Serial.println(" ug/m3 | ");
+if (!client.connected()) {
+    reconnect();
+  }
+  client.loop();
+
+  pms.read(data); 
+
+  static unsigned long lastMsg = 0;
+  unsigned long now = millis();
+  if (now - lastMsg > 5000) {
+    lastMsg = now;
+
+    JsonDocument doc;
+    doc["temp"] = bmp.readTemperature();
+    doc["press"] = bmp.readPressure() / 100.0;
+    doc["altidute"] = bmp.readAltitude(1013.25);
     
-    // Dane z BMP280
-    Serial.print("Temp: ");    Serial.print(bmp.readTemperature(), 1); Serial.print(" *C | ");
-    Serial.print("Cisnienie: "); Serial.print(bmp.readPressure() / 100.0, 1); Serial.print(" hPa | ");
-    Serial.print("Wysokosc: "); Serial.print(bmp.readAltitude(1013.25), 0); Serial.println(" m n.p.m.");
+    doc["pm10"] = data.PM_AE_UG_1_0;
+    doc["pm25"] = data.PM_AE_UG_2_5;
+    doc["pm100"] = data.PM_AE_UG_10_0;
+    doc["client"] = "station_01"; 
+
+    char buffer[256];
+    serializeJson(doc, buffer);
+    client.publish("sensors/air_quality", buffer);
     
-    Serial.println("----------------------------------------------------------------------------------------------------------------");
-    
-    delay(2000);
+    Serial.print("Wyslano dane: ");
+    Serial.println(buffer);
   }
 }
