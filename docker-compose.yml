@@ -12,3 +12,12 @@ services:
       - ./mosquitto/config/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
       - ./mosquitto/data:/mosquitto/data
       - ./mosquitto/log:/mosquitto/log
+
+  data_collector:
+    build: ./data_collector
+    container_name: python_collector
+    restart: always
+    depends_on:
+      - mqtt-broker
+    volumes:
+     - ./data_collector:/usr/src/app

@@ -15,7 +15,7 @@ WiFiClient espClient;
 PubSubClient client(espClient);
 
 void WiFi_connection() {
-  Serial.println("Proba polaczenia do WiFi z SSID ");
+  Serial.println("Attempting to connect to WiFi with SSID ");
   Serial.println(WIFI_SSID);
 
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
@@ -25,17 +25,17 @@ void WiFi_connection() {
     Serial.println(".");
   }
 
-  Serial.println("Polaczono z siecia o adresie IP: ");
+  Serial.println("Connected to network with IP address: ");
   Serial.println(WiFi.localIP());
 }
 
 void reconnect() {
   while (!client.connected()) {
-    Serial.print("Proba polaczenia MQTT...");
+    Serial.print("MQTT connection attempt...");
     if (client.connect("ESP32_Station_01")) {
-      Serial.println("polaczono z brokerem!");
+      Serial.println("connected to broker!");
     } else {
-      Serial.print("blad, stan=");
+      Serial.print("ERROR, condition = ");
       Serial.print(client.state());
       delay(5000);
     }
@@ -54,9 +54,9 @@ void setup() {
   Wire.begin(21, 22);
 
   if (!bmp.begin(0x76)) {
-    Serial.println("BMP280 nie znaleziony!");
+    Serial.println("BMP280 not found!");
   } else {
-    Serial.println("BMP280 znaleziony!");
+    Serial.println("BMP280 found!");
   }
 
   pms.activeMode();
@@ -90,7 +90,7 @@ if (!client.connected()) {
     serializeJson(doc, buffer);
     client.publish("sensors/air_quality", buffer);
     
-    Serial.print("Wyslano dane: ");
+    Serial.print("Data sent: ");
     Serial.println(buffer);
   }
 }   

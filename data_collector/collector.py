@@ -3,9 +3,9 @@ import datetime
 import sqlite3
 import json
 
-MQTT_BROKER = "127.0.0.1"
+MQTT_BROKER = "mqtt-broker"
 MQTT_TOPIC = "sensors/air_quality"
-DB_FILE = "data_collector/air_quality.db"
+DB_FILE = "air_quality.db"
 
 def setup_database():
     conn = sqlite3.connect(DB_FILE)
