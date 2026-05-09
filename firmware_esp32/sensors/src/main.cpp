@@ -73,7 +73,7 @@ if (!client.connected()) {
 
   static unsigned long lastMsg = 0;
   unsigned long now = millis();
-  if (now - lastMsg > 5000) {
+  if (now - lastMsg > 30000) {
     lastMsg = now;
 
     JsonDocument doc;
@@ -93,4 +93,4 @@ if (!client.connected()) {
     Serial.print("Wyslano dane: ");
     Serial.println(buffer);
   }
-}
+}   
