@@ -71,10 +71,12 @@ if (!client.connected()) {
 
   pms.read(data); 
 
+  static bool firstRun = true;
   static unsigned long lastMsg = 0;
   unsigned long now = millis();
   if (now - lastMsg > 30000) {
     lastMsg = now;
+    firstRun = false;
 
     JsonDocument doc;
     doc["temp"] = bmp.readTemperature();

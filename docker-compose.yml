@@ -17,6 +17,8 @@ services:
     build: ./data_collector
     container_name: python_collector
     restart: always
+    environment:
+      - TZ=Europe/Warsaw
     depends_on:
       - mqtt-broker
     volumes:
