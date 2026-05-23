@@ -10,7 +10,7 @@ System działa w oparciu o architekturę mikroserwisów orkiestrowaną przez `do
 2.  **Publikacja MQTT**: Oprogramowanie na ESP32 publikuje odczyty w formacie JSON do odpowiednich tematów na brokerze MQTT.
 3.  **Broker Mosquitto (`mosquitto`)**: Odbiera wiadomości od ESP32 i przekazuje je do subskrybentów.
 4.  **Kolektor Danych (`data_collector`)**: Serwis w Pythonie subskrybuje tematy MQTT, odbiera dane, przetwarza je i zapisuje (np. do bazy danych lub pliku CSV).
-5.  **Analiza Danych (`data_collector`)**: Notatniki Jupyter służą do zaawansowanej analizy zebranych danych historycznych.
+5.  **Analiza Danych (`notebooks`)**: Notatniki Jupyter służą do zaawansowanej analizy zebranych danych historycznych.
 
 
 ## 🛠️ Komponenty Projektu
