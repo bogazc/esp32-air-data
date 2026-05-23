@@ -1,6 +1,6 @@
 # System Monitorowania Mikroklimatu IoT
 
-Ten projekt jest systemem do monitorowania warunków mikroklimatu (temperatury, wilgotności, ciśnienia, jakości powietrza) przy użyciu czujników podłączonych do ESP32. Dane są przesyłane za pomocą protokołu MQTT, zbierane przez dedykowany serwis i udostępniane do wizualizacji na pulpicie nawigacyjnym.
+Ten projekt jest systemem do monitorowania warunków mikroklimatu (temperatury, wilgotności, ciśnienia, jakości powietrza) przy użyciu czujników podłączonych do ESP32. Dane są przesyłane za pomocą protokołu MQTT, zbierane przez dedykowany serwis i udostępniane do wizualizacji w notatniku Jupyter.
 
 ## 🚀 Architektura i Przepływ Danych
 
@@ -10,7 +10,7 @@ System działa w oparciu o architekturę mikroserwisów orkiestrowaną przez `do
 2.  **Publikacja MQTT**: Oprogramowanie na ESP32 publikuje odczyty w formacie JSON do odpowiednich tematów na brokerze MQTT.
 3.  **Broker Mosquitto (`mosquitto`)**: Odbiera wiadomości od ESP32 i przekazuje je do subskrybentów.
 4.  **Kolektor Danych (`data_collector`)**: Serwis w Pythonie subskrybuje tematy MQTT, odbiera dane, przetwarza je i zapisuje (np. do bazy danych lub pliku CSV).
-5.  **Analiza Danych (`notebooks`)**: Notatniki Jupyter służą do zaawansowanej analizy zebranych danych historycznych.
+5.  **Analiza Danych (`notebooks`)**: Notatnik Jupyter służy do analizy zebranych danych historycznych.
 
 
 ## 🛠️ Komponenty Projektu
