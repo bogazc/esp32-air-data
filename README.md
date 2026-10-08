@@ -2,7 +2,7 @@
 
 Ten projekt jest systemem do monitorowania warunków mikroklimatu (temperatury, wilgotności, ciśnienia, jakości powietrza) przy użyciu czujników podłączonych do ESP32. Dane są przesyłane za pomocą protokołu MQTT, zbierane przez dedykowany serwis i udostępniane do wizualizacji w notatniku Jupyter.
 
-## 🚀 Architektura i Przepływ Danych
+## Architektura i Przepływ Danych
 
 System działa w oparciu o architekturę mikroserwisów orkiestrowaną przez `docker-compose`.
 
@@ -13,7 +13,7 @@ System działa w oparciu o architekturę mikroserwisów orkiestrowaną przez `do
 5.  **Analiza Danych (`notebooks`)**: Notatnik Jupyter służy do analizy zebranych danych historycznych.
 
 
-## 🛠️ Komponenty Projektu
+## Komponenty Projektu
 
 -   `firmware_esp32/`: Oprogramowanie dla mikrokontrolera ESP32 (PlatformIO).
 -   `mosquitto/`: Konfiguracja brokera MQTT.
@@ -21,7 +21,7 @@ System działa w oparciu o architekturę mikroserwisów orkiestrowaną przez `do
 -   `dashboard/`: Aplikacja do wizualizacji danych - **DO ZROBIENIA**.
 -   `docker-compose.yml`: Plik orkiestrujący wszystkie usługi.
 
-## ⚙️ Sprzęt
+## Sprzęt
 
 Do budowy części sprzętowej wykorzystano:
 -   Mikrokontroler: **ESP32 z modułem ESP-WROOM-32 zgodny z ESP32-DevKit**
@@ -31,7 +31,7 @@ Do budowy części sprzętowej wykorzystano:
     -   **G5 PMS5003**: Stężenie pyłów zawieszonych (PM1.0, PM2.5, PM10).
 -   Zasilanie: Zasilacz USB 5V.
 
-## ⚒️ Schemat Połączeń
+## Schemat Połączeń
 
 <p align="center"><img width="4296" height="2484" alt="image" src="https://github.com/user-attachments/assets/ae74a20a-7c72-499e-894f-1850e1160fee" />
 </p>
@@ -58,7 +58,7 @@ Czujnik komunikuje się przez interfejs I2C.
 | **SCL**    | **GPIO22**| Linia zegara I2C      |
 | **SDA**    | **GPIO21**| Linia danych I2C      |
 
-## ✅ Aby uruchomić projekt, postępuj zgodnie z poniższymi krokami.
+## Aby uruchomić projekt, postępuj zgodnie z poniższymi krokami.
 ### Krok 1: Klonowanie Repozytorium
 
 Najpierw sklonuj repozytorium na swój lokalny komputer.
@@ -98,12 +98,21 @@ Aby zatrzymać i usunąć kontenery, użyj polecenia:
 docker-compose down
 ```
 
-## 🚧 Prace w toku
+## Wstępna Analiza Danych (EDA)
 
-Projekt jest w trakcie rozwoju. Aktualnie trwają prace nad:
+W katalogu `data_collector/` znajduje się notatnik Jupyter (`air_quality_analysis.ipynb`), który posłużył do przeprowadzenia wstępnej analizy eksploracyjnej (EDA) i sprawdzenia integralności zebranych danych. Poniżej znajduje się krótkie streszczenie wyników oparte na przykładowej próbce z okna czasowego wynoszącego niespełna 4 godziny. **Pełna analiza, wraz z kodem i wizualizacjami, dostępna jest we wspomnianym pliku `.ipynb`.**
 
--   Zakończeniem analizy jakości powietrza w notatniku `air_quality_analysis.ipynb`.
--   Rozbudową pulpitu wizualizacyjnego o nowe wykresy i alerty.
+**Główne wnioski z analizy wstępnej:**
 
----
-*Ten plik README będzie rozwijany wraz z postępem prac.*
+1. **Wysoka niezawodność systemu (Brak utraty danych)**
+   Analiza wykazała **absolutną kompletność zbioru**. W badanym okresie nie wystąpiły żadne wartości brakujące (`NaN`) ani duplikaty w indeksie czasowym. Oznacza to, że ESP32, broker MQTT oraz skrypt zapisujący działają niezwykle stabilnie, bez przerw w zasilaniu, utraty pakietów w sieci Wi-Fi czy zjawiska tzw. *double-loggingu*. Zapis następował z idealną, 30-sekundową regularnością.
+
+2. **Jakość powietrza (PMS5003)**
+   Odczyty pyłów zawieszonych (PM1.0, PM2.5, PM10) oscylowały wokół bardzo niskich wartości (średnio 5-7 µg/m³). Potwierdza to doskonałą jakość powietrza w monitorowanym pomieszczeniu w trakcie badania (brak zadymienia czy napływu zanieczyszczeń z zewnątrz).
+
+3. **Analiza profilu termicznego (BME280)**
+   Wizualizacja odczytów temperatury pozwoliła zaobserwować dwa wyraźne reżimy termiczne:
+   * **Swobodne wychładzanie:** Powolny, liniowy spadek temperatury zgodnie z prawem stygnięcia Newtona. Minimum zjawiska zanotowano o 16:01 (20,66°C).
+   * **Wymuszony wzrost temperatury:** Po godzinie 16:30 zaobserwowano nagły, bardzo stromy wzrost, sugerujący aktywację zewnętrznego źródła ciepła w niewielkiej kubaturze (np. uruchomienie kaloryfera). W ciągu niespełna 3 godzin temperatura wzrosła o ponad 2,1°C (osiągając maksimum 22,83°C o 18:44).
+
+Powyższe wyniki potwierdzają poprawność montażu sprzętu, prawidłową kalibrację sensorów oraz skuteczność całego pipeline'u przesyłania danych.
