@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  mqtt-broker:
+    image: eclipse-mosquitto:latest
+    container_name: mosquitto_broker
+    restart: always
+    ports:
+      - "1883:1883"      
+      - "9001:9001"      
+    volumes:
+      - ./mosquitto/config/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+      - ./mosquitto/data:/mosquitto/data
+      - ./mosquitto/log:/mosquitto/log
+
+  data_collector:
+    build: ./data_collector
+    container_name: python_collector
+    restart: always
+    environment:
+      - TZ=Europe/Warsaw
+    depends_on:
+      - mqtt-broker
+    volumes:
+     - ./data_collector:/usr/src/app
